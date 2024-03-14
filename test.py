@@ -94,6 +94,10 @@ def display_map(current_node, visited_nodes, queue, path):
     nx.draw_networkx_nodes(G, pos, nodelist=queue, node_color='lightblue', node_size=3000)
 
     nx.draw_networkx_edges(G, pos, edgelist=path, edge_color='r', width=3, alpha=0.5)
+    
+    # Draw frontier/queue nodes
+    for node in queue:
+        nx.draw_networkx_nodes(G, pos, nodelist=[node], node_color='blue', node_size=3000)
 
     plt.title("Romania Map BFS Visualization")
     plt.show()
