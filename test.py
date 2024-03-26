@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
-import matplotlib.pyplot as plt
 import networkx as nx
+import matplotlib.pyplot as plt
 
 # Romania map graph representation
 romania_map = {
@@ -55,20 +55,24 @@ node_positions = {
 root = tk.Tk()
 root.title("Romania Map BFS Visualization")
 
+# Create canvas for visualization
+canvas = tk.Canvas(root, width=800, height=600)
+canvas.pack()
+
 # Add dropdowns for selecting source and destination
 source_label = ttk.Label(root, text="Select Source:")
-source_label.grid(row=0, column=0, padx=10, pady=5)
+source_label.pack()
 source_var = tk.StringVar()
 source_dropdown = ttk.Combobox(root, textvariable=source_var)
 source_dropdown['values'] = tuple(romania_map.keys())
-source_dropdown.grid(row=0, column=1, padx=10, pady=5)
+source_dropdown.pack()
 
 destination_label = ttk.Label(root, text="Select Destination:")
-destination_label.grid(row=1, column=0, padx=10, pady=5)
+destination_label.pack()
 destination_var = tk.StringVar()
 destination_dropdown = ttk.Combobox(root, textvariable=destination_var)
 destination_dropdown['values'] = tuple(romania_map.keys())
-destination_dropdown.grid(row=1, column=1, padx=10, pady=5)
+destination_dropdown.pack()
 
 # Add Submit button
 def submit():
@@ -77,33 +81,38 @@ def submit():
     bfs_algorithm(source, destination)
 
 submit_button = ttk.Button(root, text="Submit", command=submit)
-submit_button.grid(row=2, column=0, columnspan=2, pady=10)
+submit_button.pack()
 
 # Display map
-def display_map(current_node, visited_nodes, queue, path):
-    G = nx.Graph(romania_map)
-    pos = node_positions
-    plt.figure(figsize=(10, 8))
+def display_map(G, pos, current_node, visited_nodes, queue, path):
+    canvas.delete("all")
+    plt.figure(figsize=(8, 6))
 
     nx.draw(G, pos, with_labels=True, node_size=3000, node_color='skyblue')
-    
+
     nx.draw_networkx_nodes(G, pos, nodelist=[current_node], node_color='yellow', node_size=3000)
 
     nx.draw_networkx_nodes(G, pos, nodelist=visited_nodes, node_color='lightgreen', node_size=3000)
 
     nx.draw_networkx_nodes(G, pos, nodelist=queue, node_color='lightblue', node_size=3000)
 
-    nx.draw_networkx_edges(G, pos, edgelist=path, edge_color='r', width=3, alpha=0.5)
-    
-    # Draw frontier/queue nodes
-    for node in queue:
-        nx.draw_networkx_nodes(G, pos, nodelist=[node], node_color='blue', node_size=3000)
+    nx.draw_networkx_edges(G, pos, edgelist=list(zip(path[:-1], path[1:])), edge_color='r', width=3, alpha=0.5)
 
     plt.title("Romania Map BFS Visualization")
-    plt.show()
+
+    plt.tight_layout()
+    plt.savefig("current_map.png")
+    plt.close()
+
+    current_map = tk.PhotoImage(file="current_map.png")
+    canvas.create_image(0, 0, anchor="nw", image=current_map)
+    canvas.image = current_map
 
 # Breadth First Search Algorithm
 def bfs_algorithm(source, destination):
+    G = nx.Graph(romania_map)
+    pos = node_positions.copy()
+
     visited = {source: None}
     queue = [source]
     path = []
@@ -111,18 +120,19 @@ def bfs_algorithm(source, destination):
         current_node = queue.pop(0)
         visited_nodes = list(visited.keys())
         if current_node == destination:
-            # Reconstruct path
-            node = destination
+            node = current_node
             while node is not None:
                 path.insert(0, node)
                 node = visited[node]
-            display_map(current_node, visited_nodes, queue, list(zip(path[:-1], path[1:])))
-            return
+            display_map(G, pos, current_node, visited_nodes, queue, path)
+            break
         for neighbor, _ in romania_map[current_node].items():
             if neighbor not in visited:
                 visited[neighbor] = current_node
                 queue.append(neighbor)
-        display_map(current_node, visited_nodes, queue, list(zip(path[:-1], path[1:])))
+        display_map(G, pos, current_node, visited_nodes, queue, path)
+        root.update_idletasks()
+        root.after(1000)  # Delay in milliseconds
 
 # Start GUI event loop
 root.mainloop()

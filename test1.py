@@ -3,7 +3,6 @@ from tkinter import ttk
 import networkx as nx
 import matplotlib.pyplot as plt
 
-# Romania map graph representation
 romania_map = {
     'Arad': {'Zerind': 75, 'Timisoara': 118, 'Sibiu': 140},
     'Zerind': {'Arad': 75, 'Oradea': 71},
@@ -27,7 +26,6 @@ romania_map = {
     'Neamt': {'Iasi': 87}
 }
 
-# Define positions for nodes
 node_positions = {
     'Arad': (2, 1.75),
     'Zerind': (2, 3),
@@ -51,15 +49,12 @@ node_positions = {
     'Neamt': (8, 7)
 }
 
-# Create GUI window
 root = tk.Tk()
 root.title("Romania Map BFS Visualization")
 
-# Create canvas for visualization
 canvas = tk.Canvas(root, width=800, height=600)
 canvas.pack()
 
-# Add dropdowns for selecting source and destination
 source_label = ttk.Label(root, text="Select Source:")
 source_label.pack()
 source_var = tk.StringVar()
@@ -74,7 +69,6 @@ destination_dropdown = ttk.Combobox(root, textvariable=destination_var)
 destination_dropdown['values'] = tuple(romania_map.keys())
 destination_dropdown.pack()
 
-# Add Submit button
 def submit():
     source = source_var.get()
     destination = destination_var.get()
@@ -83,7 +77,6 @@ def submit():
 submit_button = ttk.Button(root, text="Submit", command=submit)
 submit_button.pack()
 
-# BFS traversal
 def traverse_bfs(source, destination):
     G = nx.Graph(romania_map)
     pos = node_positions.copy()
@@ -92,7 +85,31 @@ def traverse_bfs(source, destination):
     queue = [source]
     path = []
 
-    # Function to update canvas with current state
+    # def update_canvas():
+    #     canvas.delete("all")
+    #     plt.figure(figsize=(8, 6))
+
+    #     nx.draw(G, pos, with_labels=True, node_size=3000, node_color='skyblue')
+
+    #     nx.draw_networkx_nodes(G, pos, nodelist=[current_node], node_color='yellow', node_size=3000)
+
+    #     nx.draw_networkx_nodes(G, pos, nodelist=visited_nodes, node_color='lightgreen', node_size=3000)
+
+    #     nx.draw_networkx_nodes(G, pos, nodelist=queue, node_color='orange', node_size=3000)
+
+    #     nx.draw_networkx_edges(G, pos, edgelist=list(zip(path[:-1], path[1:])), edge_color='r', width=3, alpha=0.5)
+
+    #     plt.title("Romania Map BFS Visualization")
+
+    #     plt.tight_layout()
+    #     plt.savefig("current_map.png")
+    #     plt.close()
+
+    #     current_map = tk.PhotoImage(file="current_map.png")
+    #     canvas.create_image(0, 0, anchor="nw", image=current_map)
+    #     canvas.image = current_map
+    #     root.update()
+    
     def update_canvas():
         canvas.delete("all")
         plt.figure(figsize=(8, 6))
@@ -116,7 +133,13 @@ def traverse_bfs(source, destination):
         current_map = tk.PhotoImage(file="current_map.png")
         canvas.create_image(0, 0, anchor="nw", image=current_map)
         canvas.image = current_map
+        
+        # Update the labels
+        queue_text.set(" " + ", ".join(queue))
+        visited_nodes_text.set(" " + ", ".join(visited_nodes))
+
         root.update()
+
 
     def next_step():
         nonlocal path, current_node, visited_nodes, queue
@@ -138,11 +161,30 @@ def traverse_bfs(source, destination):
         else:
             print("Destination unreachable")
 
-    # Initialize starting node
     current_node = source
     visited_nodes = [source]
+    queue_label = ttk.Label(root, text="Queue:")
+    queue_label.pack()
+
+    queue_text = tk.StringVar()
+    queue_text.set("")
+    queue_display = ttk.Label(root, textvariable=queue_text)
+    queue_display.pack()
+
+    visited_nodes_label = ttk.Label(root, text="Visited Nodes:")
+    visited_nodes_label.pack()
+
+    visited_nodes_text = tk.StringVar()
+    visited_nodes_text.set("")
+    visited_nodes_display = ttk.Label(root, textvariable=visited_nodes_text)
+    visited_nodes_display.pack()
+
     next_step_button = ttk.Button(root, text="Next", command=next_step)
     next_step_button.pack()
 
-# Start GUI event loop
 root.mainloop()
+
+
+root.mainloop()
+
+
