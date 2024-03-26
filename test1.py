@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import networkx as nx
 import matplotlib.pyplot as plt
+import tkinter.messagebox as messagebox
 
 romania_map = {
     'Arad': {'Zerind': 75, 'Timisoara': 118, 'Sibiu': 140},
@@ -152,6 +153,7 @@ def traverse_bfs(source, destination):
                     path.insert(0, node)
                     node = visited[node]
                 update_canvas()
+                messagebox.showinfo("Destination Reached", "You have reached the destination!")
             else:
                 for neighbor, _ in romania_map[current_node].items():
                     if neighbor not in visited:
@@ -159,7 +161,7 @@ def traverse_bfs(source, destination):
                         queue.append(neighbor)
                 update_canvas()
         else:
-            print("Destination unreachable")
+            messagebox.showinfo("Destination UnReachable", "You can't reach to destination!")
 
     current_node = source
     visited_nodes = [source]
