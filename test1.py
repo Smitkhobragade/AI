@@ -113,8 +113,10 @@ def traverse_bfs(source, destination):
         
         # Update the labels
         queue_text.set("Queue: " + ", ".join(queue))
-        visited_nodes_text.set("Visited Nodes: " + ", ".join(visited.keys()))
-
+        # visited_nodes_text.set("Visited Nodes: " + ", ".join(visited.keys()))
+        visited_minus_queue = [node for node in visited.keys() if node not in queue]
+        print(visited_minus_queue)
+        visited_nodes_text.set(", ".join(visited_minus_queue))
         root.update()
 
 
