@@ -86,32 +86,8 @@ def traverse_bfs(source, destination):
     queue = [source]
     path = []
 
-    # def update_canvas():
-    #     canvas.delete("all")
-    #     plt.figure(figsize=(8, 6))
-
-    #     nx.draw(G, pos, with_labels=True, node_size=3000, node_color='skyblue')
-
-    #     nx.draw_networkx_nodes(G, pos, nodelist=[current_node], node_color='yellow', node_size=3000)
-
-    #     nx.draw_networkx_nodes(G, pos, nodelist=visited_nodes, node_color='lightgreen', node_size=3000)
-
-    #     nx.draw_networkx_nodes(G, pos, nodelist=queue, node_color='orange', node_size=3000)
-
-    #     nx.draw_networkx_edges(G, pos, edgelist=list(zip(path[:-1], path[1:])), edge_color='r', width=3, alpha=0.5)
-
-    #     plt.title("Romania Map BFS Visualization")
-
-    #     plt.tight_layout()
-    #     plt.savefig("current_map.png")
-    #     plt.close()
-
-    #     current_map = tk.PhotoImage(file="current_map.png")
-    #     canvas.create_image(0, 0, anchor="nw", image=current_map)
-    #     canvas.image = current_map
-    #     root.update()
-    
     def update_canvas():
+        nonlocal queue_text, visited_nodes_text
         canvas.delete("all")
         plt.figure(figsize=(8, 6))
 
@@ -119,9 +95,9 @@ def traverse_bfs(source, destination):
 
         nx.draw_networkx_nodes(G, pos, nodelist=[current_node], node_color='yellow', node_size=3000)
 
-        nx.draw_networkx_nodes(G, pos, nodelist=visited_nodes, node_color='lightgreen', node_size=3000)
+        nx.draw_networkx_nodes(G, pos, nodelist=list(visited.keys()), node_color='lightgreen', node_size=3000)
 
-        nx.draw_networkx_nodes(G, pos, nodelist=queue, node_color='orange', node_size=3000)
+        nx.draw_networkx_nodes(G, pos, nodelist=[node for node in queue if node != current_node], node_color='orange', node_size=3000)
 
         nx.draw_networkx_edges(G, pos, edgelist=list(zip(path[:-1], path[1:])), edge_color='r', width=3, alpha=0.5)
 
@@ -136,8 +112,8 @@ def traverse_bfs(source, destination):
         canvas.image = current_map
         
         # Update the labels
-        queue_text.set(" " + ", ".join(queue))
-        visited_nodes_text.set(" " + ", ".join(visited_nodes))
+        queue_text.set("Queue: " + ", ".join(queue))
+        visited_nodes_text.set("Visited Nodes: " + ", ".join(visited.keys()))
 
         root.update()
 
@@ -161,7 +137,8 @@ def traverse_bfs(source, destination):
                         queue.append(neighbor)
                 update_canvas()
         else:
-            messagebox.showinfo("Destination UnReachable", "You can't reach to destination!")
+            messagebox.showinfo("Destination Unreachable", "You can't reach to destination!")
+
 
     current_node = source
     visited_nodes = [source]
@@ -185,8 +162,3 @@ def traverse_bfs(source, destination):
     next_step_button.pack()
 
 root.mainloop()
-
-
-root.mainloop()
-
-
