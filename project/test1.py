@@ -93,11 +93,11 @@ def traverse_bfs(source, destination):
 
         nx.draw(G, pos, with_labels=True, node_size=3000, node_color='skyblue')
 
-        nx.draw_networkx_nodes(G, pos, nodelist=[current_node], node_color='yellow', node_size=3000)
-
         nx.draw_networkx_nodes(G, pos, nodelist=list(visited.keys()), node_color='lightgreen', node_size=3000)
 
         nx.draw_networkx_nodes(G, pos, nodelist=[node for node in queue if node != current_node], node_color='orange', node_size=3000)
+
+        nx.draw_networkx_nodes(G, pos, nodelist=[current_node], node_color='yellow', node_size=3000)
 
         nx.draw_networkx_edges(G, pos, edgelist=list(zip(path[:-1], path[1:])), edge_color='r', width=3, alpha=0.5)
 
