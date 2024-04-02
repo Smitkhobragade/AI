@@ -1,0 +1,9 @@
+## Outputs 
+![Image 1](./Images/1.jpg)
+![Image 2](./Images/2.jpg)
+![Image 3](./Images/3.jpg)
+![Image 4](./Images/4.jpg)
+![Image 5](./Images/5.jpg)
+![Image 6](./Images/6.jpg)
+![Image 7](./Images/7.jpg)
+![Image 8](./Images/8.jpg)
