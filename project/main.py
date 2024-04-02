@@ -1,13 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 import networkx as nx
+import matplotlib.pyplot as plt
+import tkinter.messagebox as messagebox
 
-# Load Romania map image
-map_image = mpimg.imread('romania_map.jpg')
-
-# Romania map graph representation
 romania_map = {
     'Arad': {'Zerind': 75, 'Timisoara': 118, 'Sibiu': 140},
     'Zerind': {'Arad': 75, 'Oradea': 71},
@@ -31,74 +27,140 @@ romania_map = {
     'Neamt': {'Iasi': 87}
 }
 
-# Create GUI window
+node_positions = {
+    'Arad': (2, 1.75),
+    'Zerind': (2, 3),
+    'Oradea': (1.85, 4),
+    'Timisoara': (0, 1),
+    'Lugoj': (0, 3),
+    'Mehadia': (-0.1, 6.03),
+    'Drobeta': (4, 5),
+    'Craiova': (6, 5),
+    'Rimnicu Vilcea': (6, 3),
+    'Sibiu': (4, 3),
+    'Fagaras': (4, 1),
+    'Pitesti': (8, 3),
+    'Bucharest': (8, 1),
+    'Giurgiu': (10, 1),
+    'Urziceni': (10, 3),
+    'Hirsova': (12, 3),
+    'Eforie': (12, 5),
+    'Vaslui': (10, 5),
+    'Iasi': (10, 7),
+    'Neamt': (8, 7)
+}
+
 root = tk.Tk()
 root.title("Romania Map BFS Visualization")
 
-# Add dropdowns for selecting source and destination
+canvas = tk.Canvas(root, width=800, height=600)
+canvas.pack()
+
 source_label = ttk.Label(root, text="Select Source:")
-source_label.grid(row=0, column=0, padx=10, pady=5)
+source_label.pack()
 source_var = tk.StringVar()
 source_dropdown = ttk.Combobox(root, textvariable=source_var)
 source_dropdown['values'] = tuple(romania_map.keys())
-source_dropdown.grid(row=0, column=1, padx=10, pady=5)
+source_dropdown.pack()
 
 destination_label = ttk.Label(root, text="Select Destination:")
-destination_label.grid(row=1, column=0, padx=10, pady=5)
+destination_label.pack()
 destination_var = tk.StringVar()
 destination_dropdown = ttk.Combobox(root, textvariable=destination_var)
 destination_dropdown['values'] = tuple(romania_map.keys())
-destination_dropdown.grid(row=1, column=1, padx=10, pady=5)
+destination_dropdown.pack()
 
-# Add Submit button
 def submit():
     source = source_var.get()
     destination = destination_var.get()
-    bfs_algorithm(source, destination)
+    traverse_bfs(source, destination)
 
 submit_button = ttk.Button(root, text="Submit", command=submit)
-submit_button.grid(row=2, column=0, columnspan=2, pady=10)
+submit_button.pack()
 
-# Display map
-def display_map(current_node, visited_nodes, queue, path):
+def traverse_bfs(source, destination):
     G = nx.Graph(romania_map)
-    pos = nx.spring_layout(G)
-    plt.figure(figsize=(10, 8))
+    pos = node_positions.copy()
 
-    nx.draw(G, pos, with_labels=True, node_size=3000, node_color='skyblue')
-    
-    nx.draw_networkx_nodes(G, pos, nodelist=[current_node], node_color='yellow', node_size=3000)
-
-    nx.draw_networkx_nodes(G, pos, nodelist=visited_nodes, node_color='lightgreen', node_size=3000)
-
-    nx.draw_networkx_nodes(G, pos, nodelist=queue, node_color='lightblue', node_size=3000)
-
-    nx.draw_networkx_edges(G, pos, edgelist=path, edge_color='r', width=3)
-
-    plt.title("Romania Map BFS Visualization")
-    plt.show()
-
-# Breadth First Search Algorithm
-def bfs_algorithm(source, destination):
     visited = {source: None}
     queue = [source]
     path = []
-    while queue:
-        current_node = queue.pop(0)
-        visited_nodes = list(visited.keys())
-        if current_node == destination:
-            # Reconstruct path
-            node = destination
-            while node is not None:
-                path.insert(0, node)
-                node = visited[node]
-            display_map(current_node, visited_nodes, queue, list(zip(path[:-1], path[1:])))
-            return
-        for neighbor, _ in romania_map[current_node].items():
-            if neighbor not in visited:
-                visited[neighbor] = current_node
-                queue.append(neighbor)
-        display_map(current_node, visited_nodes, queue, list(zip(path[:-1], path[1:])))
 
-# Start GUI event loop
+    def update_canvas():
+        nonlocal queue_text, visited_nodes_text
+        canvas.delete("all")
+        plt.figure(figsize=(8, 6))
+
+        nx.draw(G, pos, with_labels=True, node_size=3000, node_color='skyblue')
+
+        nx.draw_networkx_nodes(G, pos, nodelist=list(visited.keys()), node_color='lightgreen', node_size=3000)
+
+        nx.draw_networkx_nodes(G, pos, nodelist=[node for node in queue if node != current_node], node_color='orange', node_size=3000)
+
+        nx.draw_networkx_nodes(G, pos, nodelist=[current_node], node_color='yellow', node_size=3000)
+
+        nx.draw_networkx_edges(G, pos, edgelist=list(zip(path[:-1], path[1:])), edge_color='r', width=3, alpha=0.5)
+
+        plt.title("Romania Map BFS Visualization")
+
+        plt.tight_layout()
+        plt.savefig("current_map.png")
+        plt.close()
+
+        current_map = tk.PhotoImage(file="current_map.png")
+        canvas.create_image(0, 0, anchor="nw", image=current_map)
+        canvas.image = current_map
+        
+        # Update the labels
+        queue_text.set("Queue: " + ", ".join(queue))
+        # visited_nodes_text.set("Visited Nodes: " + ", ".join(visited.keys()))
+        visited_minus_queue = [node for node in visited.keys() if node not in queue]
+        print(visited_minus_queue)
+        visited_nodes_text.set(", ".join(visited_minus_queue))
+        root.update()
+
+
+    def next_step():
+        nonlocal path, current_node, visited_nodes, queue
+        if queue:
+            current_node = queue.pop(0)
+            visited_nodes = list(visited.keys())
+            if current_node == destination:
+                node = current_node
+                while node is not None:
+                    path.insert(0, node)
+                    node = visited[node]
+                update_canvas()
+                messagebox.showinfo("Destination Reached", "You have reached the destination!")
+            else:
+                for neighbor, _ in romania_map[current_node].items():
+                    if neighbor not in visited:
+                        visited[neighbor] = current_node
+                        queue.append(neighbor)
+                update_canvas()
+        else:
+            messagebox.showinfo("Destination Unreachable", "You can't reach to destination!")
+
+
+    current_node = source
+    visited_nodes = [source]
+    queue_label = ttk.Label(root, text="Queue:")
+    queue_label.pack()
+
+    queue_text = tk.StringVar()
+    queue_text.set("")
+    queue_display = ttk.Label(root, textvariable=queue_text)
+    queue_display.pack()
+
+    visited_nodes_label = ttk.Label(root, text="Visited Nodes:")
+    visited_nodes_label.pack()
+
+    visited_nodes_text = tk.StringVar()
+    visited_nodes_text.set("")
+    visited_nodes_display = ttk.Label(root, textvariable=visited_nodes_text)
+    visited_nodes_display.pack()
+
+    next_step_button = ttk.Button(root, text="Next", command=next_step)
+    next_step_button.pack()
+
 root.mainloop()

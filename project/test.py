@@ -3,7 +3,6 @@ from tkinter import ttk
 import networkx as nx
 import matplotlib.pyplot as plt
 
-# Romania map graph representation
 romania_map = {
     'Arad': {'Zerind': 75, 'Timisoara': 118, 'Sibiu': 140},
     'Zerind': {'Arad': 75, 'Oradea': 71},
@@ -27,7 +26,6 @@ romania_map = {
     'Neamt': {'Iasi': 87}
 }
 
-# Define positions for nodes
 node_positions = {
     'Arad': (2, 1.75),
     'Zerind': (2, 3),
@@ -51,15 +49,12 @@ node_positions = {
     'Neamt': (8, 7)
 }
 
-# Create GUI window
 root = tk.Tk()
 root.title("Romania Map BFS Visualization")
 
-# Create canvas for visualization
 canvas = tk.Canvas(root, width=800, height=600)
 canvas.pack()
 
-# Add dropdowns for selecting source and destination
 source_label = ttk.Label(root, text="Select Source:")
 source_label.pack()
 source_var = tk.StringVar()
@@ -74,7 +69,6 @@ destination_dropdown = ttk.Combobox(root, textvariable=destination_var)
 destination_dropdown['values'] = tuple(romania_map.keys())
 destination_dropdown.pack()
 
-# Add Submit button
 def submit():
     source = source_var.get()
     destination = destination_var.get()
@@ -83,7 +77,6 @@ def submit():
 submit_button = ttk.Button(root, text="Submit", command=submit)
 submit_button.pack()
 
-# Display map
 def display_map(G, pos, current_node, visited_nodes, queue, path):
     canvas.delete("all")
     plt.figure(figsize=(8, 6))
@@ -108,7 +101,6 @@ def display_map(G, pos, current_node, visited_nodes, queue, path):
     canvas.create_image(0, 0, anchor="nw", image=current_map)
     canvas.image = current_map
 
-# Breadth First Search Algorithm
 def bfs_algorithm(source, destination):
     G = nx.Graph(romania_map)
     pos = node_positions.copy()
@@ -134,5 +126,4 @@ def bfs_algorithm(source, destination):
         root.update_idletasks()
         root.after(1000)  # Delay in milliseconds
 
-# Start GUI event loop
 root.mainloop()
